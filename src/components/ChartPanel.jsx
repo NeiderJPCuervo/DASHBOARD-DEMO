@@ -10,7 +10,7 @@ import {
   ReferenceLine,
   ReferenceArea
 } from 'recharts';
-import { Maximize2, Calendar, Search, X } from 'lucide-react';
+import { Maximize2, Calendar, Search, X, Unplug } from 'lucide-react';
 
 const CustomTooltip = ({ active, payload, label, unit }) => {
   if (active && payload && payload.length) {
@@ -46,6 +46,7 @@ export default function ChartPanel({
   color = '#38bdf8',
   threshold = null,
   thresholdLabel = '',
+  noSignal = false,
   onExpand
 }) {
   // Drag-to-zoom state
@@ -153,6 +154,23 @@ export default function ChartPanel({
   // Compute current/avg value for header display
   const validVals = activeData ? activeData.map(d => d[dataKey]).filter(v => v !== null && v !== undefined) : [];
   const latestVal = validVals.length > 0 ? validVals[validVals.length - 1] : 'N/A';
+
+  // A flat line at 0 looks like real data, so dead sensors get a notice instead
+  if (noSignal) {
+    return (
+      <div className="chart-panel no-signal">
+        <div className="chart-header">
+          <span className="chart-title">{title}</span>
+          <span className="no-signal-badge">Sin señal</span>
+        </div>
+        <div className="no-signal-body">
+          <Unplug size={28} />
+          <p>El sensor reporta un valor constante cercano a 0 en todo el período.</p>
+          <p className="no-signal-hint">No se grafica para no confundirlo con una lectura real.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="chart-panel">

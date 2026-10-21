@@ -2,6 +2,8 @@
 
 Dashboard web para analizar cuatro meses (mayo–agosto) de lecturas del historiador de una planta hidratadora de cal: 34 señales de proceso, paros detectados y KPIs de operación por mes.
 
+**Demo en vivo:** [neiderjpcuervo.github.io/DASHBOARD-DEMO](https://neiderjpcuervo.github.io/DASHBOARD-DEMO/)
+
 ![Vista general del dashboard](docs/captura-dashboard.png)
 
 ## Qué problema resuelve
@@ -47,6 +49,7 @@ npm run preview
 ├── src/
 │   ├── data/                        # salida del ETL (la consume el frontend)
 │   ├── components/                  # Header, KpiCard, DowntimeTimeline, ChartPanel, ExpandModal
+│   ├── signalQuality.js             # detecta sensores sin señal
 │   └── App.jsx                      # KPIs, pestañas y configuración de las 34 señales
 └── docs/captura-dashboard.png
 ```
@@ -70,6 +73,10 @@ Así cada vista dibuja solo los puntos que necesita (unos 110 por señal para el
 **Disponibilidad** = 1 − (minutos detenidos / minutos calendario del mes).
 
 **Alarmas:** se cuenta cada lectura por encima del umbral (> 150 °C en cualquiera de los seis sensores de temperatura del hidratador; > 14 A en el motor de la etapa 2).
+
+**Sensores sin señal.** Cinco señales llegan del historiador con el mismo valor, cercano a 0, en todo el período: TT 411201, TT 411204 y TT 411205 (temperaturas), CIT 411201 (conductividad) y FIT 411102 (flujo de cal viva, 0,01 en el 99,6 % de las lecturas). Una línea plana en 0 parece un dato real, así que `src/signalQuality.js` las detecta (≥ 98 % de lecturas con el mismo valor y ese valor cercano a 0) y el dashboard muestra "Sin señal" en lugar de la gráfica. La condición de valor cercano a 0 evita marcar motores de velocidad fija, como el ventilador de reciclaje que gira siempre a 1780 RPM.
+
+**Unidad del flujo de agua.** La exportación no trae unidades. FIT 411201 marca entre 2.600 y 4.000 durante la operación, un rango coherente con litros por hora para un hidratador (en m³/h sería un caudal irreal), por eso se muestra en L/h.
 
 ## Autor
 

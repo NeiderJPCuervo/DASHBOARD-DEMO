@@ -10,6 +10,7 @@ import readingsDaily from './data/readings_daily.json';
 import readingsRaw from './data/readings_raw.json';
 import downtimeData from './data/downtime.json';
 import kpisData from './data/kpis_by_month.json';
+import { detectNoSignal } from './signalQuality';
 
 import {
   Zap,
@@ -35,6 +36,9 @@ const TABS = [
   { id: 'microsep', label: 'Microsep A y B', icon: Sliders, count: 8 },
   { id: 'molino', label: 'Molino y Elevadores', icon: Cpu, count: 4 }
 ];
+
+// Sensors stuck at ~0 for the whole period (computed once from the raw readings)
+const NO_SIGNAL = detectNoSignal(readingsRaw, Object.keys(kpisData['Todo'].stats));
 
 export default function App() {
   const [selectedPeriod, setSelectedPeriod] = useState('Todo');
@@ -139,7 +143,7 @@ export default function App() {
         {
           title: 'Flujo Agua (FIT 411201)',
           dataKey: 'flujo_agua',
-          unit: 'm³/h',
+          unit: 'L/h',
           color: '#06b6d4'
         },
         {
@@ -306,16 +310,19 @@ export default function App() {
       <section className="kpi-grid">
         <KpiCard
           title="Flujo Cal Viva Prom."
-          value={currentKpi ? currentKpi.flujo_cal_avg : 'N/A'}
-          unit="t/h"
+          value={NO_SIGNAL.flujo_cal ? 'Sin señal' : (currentKpi ? currentKpi.flujo_cal_avg : 'N/A')}
+          unit={NO_SIGNAL.flujo_cal ? 'FIT 411102 sin lecturas válidas' : 't/h'}
           icon={Zap}
-          accentColor="#38bdf8"
+          accentColor={NO_SIGNAL.flujo_cal ? '#6b7280' : '#38bdf8'}
+          badge={NO_SIGNAL.flujo_cal ? 'Revisar sensor' : null}
+          badgeType="warning"
+          muted={NO_SIGNAL.flujo_cal}
         />
 
         <KpiCard
           title="Flujo Agua Prom."
           value={currentKpi ? currentKpi.flujo_agua_avg : 'N/A'}
-          unit="m³/h"
+          unit="L/h"
           icon={Droplets}
           accentColor="#06b6d4"
         />
@@ -415,6 +422,7 @@ export default function App() {
               color={cfg.color}
               threshold={cfg.threshold}
               thresholdLabel={cfg.thresholdLabel}
+              noSignal={NO_SIGNAL[cfg.dataKey]}
               onExpand={setExpandedChart}
             />
           ))}

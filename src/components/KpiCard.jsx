@@ -1,8 +1,8 @@
 import React from 'react';
 
-export default function KpiCard({ title, value, unit, icon: Icon, accentColor, badge, badgeType }) {
+export default function KpiCard({ title, value, unit, icon: Icon, accentColor, badge, badgeType, muted = false }) {
   return (
-    <div className="kpi-card" style={{ '--accent-color': accentColor || 'var(--color-blue)' }}>
+    <div className={`kpi-card ${muted ? 'muted' : ''}`} style={{ '--accent-color': accentColor || 'var(--color-blue)' }}>
       <div className="kpi-header">
         <span className="kpi-label">{title}</span>
         {Icon && <Icon size={18} className="kpi-icon" />}
